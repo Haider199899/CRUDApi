@@ -24,9 +24,9 @@ import mongoose,{Schema,model,Document} from 'mongoose';
    interface IOrder extends Document {
     user: string;
     orderItems: IOrderItems[];
-    shippingAddress: IShippingAddress;
+    shippingAddress: any;
     paymentMethod: string;
-    paymentResult: IPaymentResult | any;
+    //paymentResult: IPaymentResult | any;
     taxPrice: number;
     shippingPrice: number;
     totalPrice: number;
@@ -46,7 +46,7 @@ import mongoose,{Schema,model,Document} from 'mongoose';
         {
           name: { type: String, required: true },
           qty: { type: Number, required: true },
-          image: { type: String, required: true },
+         
           price: { type: Number, required: true },
           product: {
             type: mongoose.Schema.Types.ObjectId,
@@ -56,22 +56,8 @@ import mongoose,{Schema,model,Document} from 'mongoose';
         },
       ],
       shippingAddress: {
-        address: {
-          type: String,
-          required: true,
-        },
-        city: {
-          type: String,
-          required: true,
-        },
-        postalCode: {
-          type: String,
-          required: true,
-        },
-        country: {
-          type: String,
-          required: true,
-        },
+       type:String,
+       required:true
       },
       paymentMethod: {
         type: String,
@@ -100,7 +86,7 @@ import mongoose,{Schema,model,Document} from 'mongoose';
       },
       isPaid: {
         type: Boolean,
-        required: true,
+       // required: true,
         default: false,
       },
       paidAt: {
@@ -108,7 +94,7 @@ import mongoose,{Schema,model,Document} from 'mongoose';
       },
       isDelivered: {
         type: Boolean,
-        required: true,
+        //required: true,
         default: false,
       },
       deliveredAt: {

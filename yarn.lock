@@ -339,6 +339,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/jwt-simple@^0.5.33":
+  "integrity" "sha512-RcVbKkbUP6u5yFd9HuLhCkAYlT1FQVZylNsxxgaVMZxMajwrVTmQei7C6yMXSoAkXJXpGOUtbsY6Q9kq3+p93g=="
+  "resolved" "https://registry.npmjs.org/@types/jwt-simple/-/jwt-simple-0.5.33.tgz"
+  "version" "0.5.33"
+
 "@types/lodash@^4.14.175", "@types/lodash@^4.14.184":
   "integrity" "sha512-RoZphVtHbxPZizt4IcILciSWiC6dcn+eZ8oX9IWEYfDMcocdd42f7NPI6fQj+6zI8y4E0L7gu2pcZKLGTRaV9Q=="
   "resolved" "https://registry.npmjs.org/@types/lodash/-/lodash-4.14.184.tgz"
@@ -1704,6 +1709,11 @@
   dependencies:
     "jwa" "^1.4.1"
     "safe-buffer" "^5.0.1"
+
+"jwt-simple@^0.5.6":
+  "integrity" "sha512-40aUybvhH9t2h71ncA1/1SbtTNCVZHgsTsTgqPUxGWDmUDrXyDf2wMNQKEbdBjbf4AI+fQhbECNTV6lWxQKUzg=="
+  "resolved" "https://registry.npmjs.org/jwt-simple/-/jwt-simple-0.5.6.tgz"
+  "version" "0.5.6"
 
 "kareem@2.4.1":
   "integrity" "sha512-aJ9opVoXroQUPfovYP5kaj2lM7Jn02Gw13bL0lg9v0V7SaUc0qavPs0Eue7d2DcC3NjqI6QAUElXNsuZSeM+EA=="

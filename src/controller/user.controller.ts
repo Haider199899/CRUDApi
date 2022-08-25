@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import bcryptjs from 'bcryptjs';
-
+import bcrypt from 'bcrypt';
 import User, { IUser } from '../model/user.model';
-import signJWT from '../functions/signJWT';
-import passport from '../middleware/passportMiddleware';
+import jwt from 'jwt-simple';
+import jsonwt from 'jsonwebtoken';
 
 const NAMESPACE = 'User';
 
@@ -32,7 +32,7 @@ const register = (req: Request, res: Response, next: NextFunction) => {
             name,
             email,
             password: hash,
-            confirmPassword
+            confirmPassword,
         });
 
         return _user
@@ -51,29 +51,82 @@ const register = (req: Request, res: Response, next: NextFunction) => {
     });
 };
 
+
+
 const login=(req:Request,res:Response,next:NextFunction)=>{
+    
+    const email = req.body.email
+    const password= req.body.password
+     
+    
+
+    //find user exist or not
+    User.findOne({ email })
+        .then(user => {
+            //if user not exist than return status 400
+            if (!user) return res.status(400).json({ msg: "User not exist" });
+
+            //if user exist than compare password
+            //password comes from the user
+            //user.password comes from the database
+            bcrypt.compare(password, user.password, (err, data) => {
+                //if error than throw error
+                if (err) throw err
+
+                //if both match than create the token
+                if (data) {
+                    
+                    const payload = {
+                        id: user._id,
+                        name: user.name,
+                        email: user.email
+                      };
+                      jsonwt.sign(
+                        payload,
+                        'mySecret',
+                        { expiresIn: 3600 },
+                        (err, token) => {
+                          res.json({
+                            message:`User id:${user._id} Email:${user.email}`,
+                            success: true,
+                            token: token
+                            
+                          });
+                        }
+                      );
+            
+                } else {
+                    return res.status(401).json({ msg: "Invalid credencial" })
+                }
+               
+                
+
+            });
+
+        });
+
+    }
+    
+
+
+    /*
+    if(user)
+    {
+        res.json({user});
+    }
+    else{
+        return res.status(500).json({
+            message: "Incorrect user name or password!"
+        });
+    }*/
 
     // check email in db, if exist fetch data. otherwise Wrong username or password
     // hash password
     // compare password
     // create token
     // return response
-    // 
-    passport.authenticate("local",(err,user,info)=>{
-         if(!user)
-            return res.status(401).json({
-                message:"Email or password is mismatched!",
 
-            });
-            req.login(user,(err)=>{
-                if(err)
-                throw(err);
-                res.status(201).json({
-                    user,
-                });
-            });
-         })(req,res,next);
-    };
+    
 
 /*
 const login = (req: Request, res: Response, next: NextFunction) => {

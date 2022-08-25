@@ -1,7 +1,12 @@
-import Order from '../model/orders.model';
+import Order from "../model/orders.model";
 import asyncHandler from "express-async-handler";
 import { Request, Response } from "express";
-import {IOrder,IOrderItems,IShippingAddress,IPaymentResult} from "../model/orders.model";
+import {
+  IOrder,
+  IOrderItems,
+  IShippingAddress,
+  IPaymentResult,
+} from "../model/orders.model";
 import { ObjectId } from "mongoose";
 
 // @desc Create new order
@@ -13,15 +18,13 @@ const addOrderItems = asyncHandler(
       orderItems,
       shippingAddress,
       paymentMethod,
-      itemsPrice,
       taxPrice,
       shippingPrice,
       totalPrice,
     }: {
       orderItems: IOrderItems[];
-      shippingAddress: IShippingAddress;
+      shippingAddress: string;
       paymentMethod: string;
-      itemsPrice: number;
       taxPrice: number;
       shippingPrice: number;
       totalPrice: number;
@@ -33,10 +36,9 @@ const addOrderItems = asyncHandler(
     } else {
       const order = new Order({
         orderItems,
-        user: req.user._id,
+        user: "630250a3b98eee84ffe26f41",
         shippingAddress,
         paymentMethod,
-        itemsPrice,
         taxPrice,
         shippingPrice,
         totalPrice,
@@ -78,12 +80,7 @@ const updateOrderToPaid = asyncHandler(
     if (order) {
       order.isPaid = true;
       order.paidAt = Date.now();
-      order.paymentResult = {
-        id: req.body.id,
-        status: req.body.status,
-        update_time: req.body.update_time,
-        email_address: req.body.payer.email_address,
-      };
+      
       const updatedOrder: IOrder & {
         _id: ObjectId;
       } = await order.save();
