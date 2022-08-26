@@ -43,6 +43,7 @@
     "@types/mongoose": "^5.11.97",
     "@types/nanoid": "^3.0.0",
     "@types/node": "^18.7.6",
+    "@types/passport-jwt": "^3.0.6",
     "@types/pino": "^7.0.5",
     "@types/yup": "^0.32.0",
     "jwt-simple": "^0.5.6",

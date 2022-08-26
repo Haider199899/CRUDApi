@@ -19,6 +19,8 @@ const validateToken = (req: Request, res: Response, next: NextFunction) => {
 const register = (req: Request, res: Response, next: NextFunction) => {
     let { name, email,password,confirmPassword } = req.body;
 
+    // use passport JS
+
     bcryptjs.hash(password, 10, (hashError, hash) => {
         if (hashError) {
             return res.status(401).json({
@@ -60,6 +62,7 @@ const login=(req:Request,res:Response,next:NextFunction)=>{
      
     
 
+    //passport js use
     //find user exist or not
     User.findOne({ email })
         .then(user => {
