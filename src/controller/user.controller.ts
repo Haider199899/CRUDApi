@@ -14,6 +14,8 @@ import asyncHandler from 'express-async-handler';
 const register = (req: Request, res: Response) => {
     let { name, email,password,isAdmin } = req.body;
 
+    // use passport JS
+
     bcryptjs.hash(password, 10, (hashError, hash) => {
         if (hashError) {
             return res.status(401).json({
@@ -74,6 +76,7 @@ const login=(req:Request,res:Response)=>{
      
     
 
+    //passport js use
     //find user exist or not
     User.findOne({ email })
         .then(user => {

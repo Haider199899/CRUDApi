@@ -1,14 +1,7 @@
 import passport from 'passport';
-import passportCustom from 'passport-custom';
-const CustomStrategy = passportCustom.Strategy;
-
 import passportLocal from "passport-local";
-// import passportApiKey from "passport-headerapikey";
 import passportJwt from "passport-jwt";
-
-import { string } from 'yup';
 import User, { IUser } from '../model/user.model';
-import bcrypt from 'bcrypt';
 import controller from '../controller/user.controller';
 import dotenv from 'dotenv';
 dotenv.config()
@@ -16,7 +9,7 @@ dotenv.config()
 const LocalStrategy = passportLocal.Strategy;
 const JwtStrategy = passportJwt.Strategy;
 const ExtractJwt = passportJwt.ExtractJwt;
-import bcryptjs from 'bcryptjs';
+
 
 
 
@@ -38,7 +31,6 @@ passport.use('login',
     }
     )
     ) ;
-
     passport.use('signup',
     new LocalStrategy({
         usernameField:"email",
@@ -84,6 +76,7 @@ passport.use('login',
       });
     }));
   
+
 passport.serializeUser((user:any,done)=>{
     done(null,{_id:user._id});
 
@@ -97,3 +90,32 @@ passport.deserializeUser(async(id:string,done:any)=>{
     }
 });
 export default passport;
+
+
+// passport.use(
+//     'admin',
+//     new JWTStrategy(
+//       {
+//         jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+//         secretOrKey: process.env.PW_ENCRYPTION_KEY as string,
+//       },
+//       async (jwtPayload: any, cb: any) => {
+//         // console.log(jwtPayload, 'jwtPayloadjwtPayload');
+//         if (jwtPayload.hasOwnProperty('user_id')) {
+//           const userInstance: AdminAccount | null = await (<IAdminAccountRepository>services.adminAccountService).getAdminAccountById({ user_id: jwtPayload.user_id });
+//           if (!userInstance) {
+//             return cb({
+//               code: 401,
+//               message: `User not found`
+//             })
+//           }
+//           return cb(null, { ...jwtPayload });
+//         } else {
+//           return cb({
+//             code: 401,
+//             message: `Invalid token`
+//           })
+//         }
+//       },
+//     ),
+//   );
