@@ -1,43 +1,39 @@
 import mongoose, { Document } from 'mongoose';
-import inventoryModel from './inventory.model';
-import { IInventory } from './inventory.model';
 
-
-  //interface for attributes of products
-
+//interface for attributes of products
 export interface IProduct extends Document {
    
-    product_id: string;
-    name: string;
+    product_name: string;
     brand: string;
     category: string;
-    description: string;
-    
-    
-    inventory:any;
+    price:number;
+    countInStock:number;
+    inventory_id:any;
     
   }
 
-
-
-  
-  
-const productSchema = new mongoose.Schema(
+  const productSchema = new mongoose.Schema(
   {
-   
-    product_id: { type: String, required: true,unique:true },
-    name: { type: String, required: true },
+    product_name: { type: String, required: true },
     brand: { type: String, required: true },
     category: { type: String, required: true },
-    description: { type: String, required: true },
-  
-    
-    inventory:{type:mongoose.Schema.Types.ObjectId,required:true,ref:'Inventory'},//refernce of inventory
+    price: { type: Number, required: true },
+    countInStock:{ type: Number, required: true },
+    inventory_id:{type:mongoose.Schema.Types.ObjectId,required:true,ref:'Inventory'},//refernce of inventory
   },
   {
     timestamps: true,
   },
 );
+//method for transforming id and deleting useless info
+productSchema.set("toJSON", {
+  transform: function (doc, ret) {
+    ret.id = ret._id;
+    delete ret._id;
+    delete ret.__v;
+  }
+});
+ 
 
 const Product = mongoose.model<IProduct>('Product', productSchema);
 export default Product;

@@ -1,11 +1,11 @@
 import express from "express";
-//import dotenv from "dotenv";
+import dotenv from "dotenv";
 import connection from "./src/db/connect";
 import routes from "./src/routes";
 import sessionMiddleware from "./src/middleware/sessionMiddleware";
 import passport from "./src/middleware/passportMiddleware";
 import bodyParser from "body-parser";
-//dotenv.config();
+dotenv.config();
 
 const app = express();
 app.use(express.json());
@@ -14,10 +14,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
-let port = 3000;
-let host = 'localhost';
+let port =process.env.PORT;
+let host = process.env.HOST;
 
-app.listen(port, host, () => {
+app.listen( () => {
    console.log(`Server listening at http://${host}:${port}`);
    connection();
    routes(app);

@@ -2,22 +2,17 @@ import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import bcryptjs from 'bcryptjs';
 import bcrypt from 'bcrypt';
+import path from 'path';
 import User, { IUser } from '../model/user.model';
-import jwt from 'jwt-simple';
-import jsonwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+dotenv.config({path: path.join(__dirname, '..', '.env')});
 
-const NAMESPACE = 'User';
+import jwt from 'jsonwebtoken';
+import asyncHandler from 'express-async-handler';
 
-const validateToken = (req: Request, res: Response, next: NextFunction) => {
-    console.log(NAMESPACE, 'Token validated, user authorized.');
 
-    return res.status(200).json({
-        message: 'Token(s) validated'
-    });
-};
-
-const register = (req: Request, res: Response, next: NextFunction) => {
-    let { name, email,password,confirmPassword } = req.body;
+const register = (req: Request, res: Response) => {
+    let { name, email,password,isAdmin } = req.body;
 
     bcryptjs.hash(password, 10, (hashError, hash) => {
         if (hashError) {
@@ -32,17 +27,36 @@ const register = (req: Request, res: Response, next: NextFunction) => {
             name,
             email,
             password: hash,
-            confirmPassword,
-        });
+            isAdmin,
+         
+        })
+    
+      
+        const token = jwt.sign(_user.toJSON(),'superencryptedsecret' , {expiresIn:process.env.SERVEE_TOKEN_EXPIRETIME});
+        
 
         return _user
             .save()
             .then((user:IUser) => {
+                if(isAdmin===true){
                 return res.status(201).json({
-                    user
-                });
-            })
-            .catch((error:any) => {
+                    user,
+                    success:true,
+                    token:token,
+                    message:"Admin registered successfully"})
+                }else{
+                    return res.status(201).json({
+                        user,
+                        success:true,
+                        token:token,
+                        message:"User registered successfully"
+
+
+                })
+            }
+        }
+    )
+   .catch((error:any) => {
                 return res.status(500).json({
                     message: error.message,
                     error
@@ -53,7 +67,7 @@ const register = (req: Request, res: Response, next: NextFunction) => {
 
 
 
-const login=(req:Request,res:Response,next:NextFunction)=>{
+const login=(req:Request,res:Response)=>{
     
     const email = req.body.email
     const password= req.body.password
@@ -81,7 +95,7 @@ const login=(req:Request,res:Response,next:NextFunction)=>{
                         name: user.name,
                         email: user.email
                       };
-                      jsonwt.sign(
+                      jwt.sign(
                         payload,
                         'mySecret',
                         { expiresIn: 3600 },
@@ -106,88 +120,111 @@ const login=(req:Request,res:Response,next:NextFunction)=>{
         });
 
     }
+    //fetch user profile
+const profile=(req:Request,res:Response)=>{
+    const email = req.body.email
+    const password= req.body.password
+    const isAdmin=new Boolean(req.body.isAdmin);
+     
     
+     if(isAdmin===true){
+    //find user exist or not
+    User.findOne({ email })
+        .then(user => {
+            //if user not exist than return status 400
+            if (!user) return res.status(400).json({ msg: "Admin not exist" });
 
+            //if user exist than compare password
+            //password comes from the user
+            //user.password comes from the database
+            bcrypt.compare(password, user.password, (err, data) => {
+                //if error than throw error
+                if (err) throw err
 
-    /*
-    if(user)
-    {
-        res.json({user});
+                //if both match than create the token
+                if (data) {
+                    
+                    const payload = {
+                        id: user._id,
+                        name: user.name,
+                        email: user.email,
+                        isAdmin:user.isAdmin
+                      };
+                      jwt.sign(
+                        payload,
+                        'adminSecret',
+                        { expiresIn: 3600 },
+                        (err, token) => {
+                          res.json({
+                            message:`User id:${user._id}  Email:${user.email}  Admin:${user.isAdmin}`,
+                            success: true,
+                            token: token
+                            
+                          });
+                        }
+                      );
+            
+                } else {
+                    return res.status(401).json({ msg: "Invalid credencial" })
+                }
+               
+                
+
+            });
+
+        });
+
     }
     else{
-        return res.status(500).json({
-            message: "Incorrect user name or password!"
-        });
-    }*/
+        User.findOne({ email })
+        .then(user => {
+            //if user not exist than return status 400
+            if (!user) return res.status(400).json({ msg: "Admin not exist" });
 
-    // check email in db, if exist fetch data. otherwise Wrong username or password
-    // hash password
-    // compare password
-    // create token
-    // return response
+            //if user exist than compare password
+            //password comes from the user
+            //user.password comes from the database
+            bcrypt.compare(password, user.password, (err, data) => {
+                //if error than throw error
+                if (err) throw err
 
-    
-
-/*
-const login = (req: Request, res: Response, next: NextFunction) => {
-    let { email, password } = req.body;
-
-    User.find({ email  })
-        .exec()
-        .then((users) => {
-            if (users.length !== 1) {
-                return res.status(401).json({
-                    message: 'Unauthorized'
-                });
-            }
-
-            bcryptjs.compare(password, users[0].password, (error, result) => {
-                if (error) {
-                    return res.status(401).json({
-                        message: 'Password Mismatch'
-                    });
-                } else if (result) {
-                    signJWT(users[0], (_error, token) => {
-                        if (_error) {
-                            return res.status(500).json({
-                                message: _error.message,
-                                error: _error
-                            });
-                        } else if (token) {
-                            return res.status(200).json({
-                                message: 'Auth successful',
-                                token: token,
-                                user: users[0]
-                            });
+                //if both match than create the token
+                if (data) {
+                    
+                    const payload = {
+                        id: user._id,
+                        name: user.name,
+                        email: user.email,
+                        isAdmin:user.isAdmin
+                      };
+                      jwt.sign(
+                        payload,
+                        'userSecret',
+                        { expiresIn: 3600 },
+                        (err, token) => {
+                          res.json({
+                            message:`User id:${user._id}  Email:${user.email}  Admin:${user.isAdmin}`,
+                            success: true,
+                            token: token
+                            
+                          });
                         }
-                    });
+                      );
+            
+                } else {
+                    return res.status(401).json({ msg: "Invalid credencial" })
                 }
-            });
-        })
-        .catch((err) => {
-            console.log(err);
-            res.status(500).json({
-                error: err
-            });
-        });
-};*/
+               
+                
 
-const getAllUsers = (req: Request, res: Response, next: NextFunction) => {
-    User.find()
-        .select('-password')
-        .exec()
-        .then((users) => {
-            return res.status(200).json({
-                users: users,
-                count: users.length
             });
-        })
-        .catch((error) => {
-            return res.status(500).json({
-                message: error.message,
-                error
-            });
-        });
-};
 
-export default { validateToken, register, login, getAllUsers };
+        });
+
+
+    }
+}
+
+
+   
+export default { register, login};

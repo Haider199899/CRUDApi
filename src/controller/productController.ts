@@ -1,114 +1,107 @@
 import Product from "../model/products.model";
 import { Request, Response } from "express";
-import mongoose, { ObjectId } from "mongoose";
-import asyncHandler from "express-async-handler";
+import  { ObjectId } from "mongoose";
 import { IProduct } from "../model/products.model";
-import bodyParser from "body-parser";
+import Inventory, { IInventory } from "../model/inventory.model";
 
+//Adding the product
+const addProduct=async(req: Request, res: Response)=> {
+  try{
+  const newProduct: IProduct = new Product(req.body);
+  const newInventory:IInventory|any=new Inventory(req.body.price,req.body.countInStock);
+  
+  const product = await Product.findOne({ id: req.body.id });
+  if (product === null) {
+      const product = await newProduct.save();
 
-//Adding the products
-const addProduct = (req: Request, res: Response) => {
-  const productData: IProduct = req.body;
-  const _product = new Product({
-    ...productData,
-    inventory:"630756a8794cc7fe16312e88"
-    
-    
-  });
-  return _product
-    .save()
-    .then((_product) => {
-      return res.status(201).json({
-        _product,
-      });
-    })
-    .catch((error: any) => {
-      return res.status(500).json({
-        message: error.message,
-        error,
-      });
-    });
-};
-//Adding product description to inventory
+      const inventory=await newInventory.save();
+      if (product === null) {
+          res.sendStatus(500);
+      } else {
+          res.status(201).json({ status: 201, data: product });
+      }
+
+  } else {
+      res.sendStatus(422);
+  }
+}catch(error:any){
+  return res.json({
+    message:"Something is not valid due to "+error,
+    success:false
+  })
+}
+}
+
 
 //Update the product
 
-const updateProduct = asyncHandler(async (req: Request, res: Response) => {
-  const { product_id } = req.params as { product_id: string };
-  const { name, description, brand, category}=
+const updateProduct = (async (req: Request, res: Response) => {
+  try{
+  const { id,inventory_id } = req.body as { id: string,inventory_id:string };
+  const {product_name,  brand, category,price,countInStock}=
     req.body as {
-      name: string;
-      
-      description: string;
+      product_name: string;
+      price:number;
       brand: string;
       category: string;
-     
+      countInStock:number;
+      inventory_id:string;
     
     };
+  const inventory=await Inventory.findById({inventory_id});
 
-  const product = await Product.findOneAndUpdate({product_id});
+  const product = await Product.findOneAndUpdate({id});
 
-  if (product) {
-    product.name = name;
-   
-    product.description = description;
-
-    product.brand = brand;
+  if (product && inventory) {
+    product.product_name =product_name;
+    product.price=price;
+    product.brand = brand; 
     product.category = category;
-  
-    
+    product.countInStock=countInStock;
+    inventory.price=product.price;
+    inventory.countInStock=product.countInStock;
 
     const updatedProduct = await product.save();
-    res.status(201).json(updatedProduct);
+    const updatedInventory=await inventory.save();
+    res.status(201).json(`Updated Product and Inventory:${updatedProduct},${updatedInventory}`);
   } else {
     res.status(404);
     throw new Error("Product not found.");
   }
-});
+}catch(error:any){
+  return res.json({
+    message:"Something is not valid!",
+    success:false
+  })
+}
+}
+);
 //Delete the product
 
-const deleteProduct = asyncHandler(async (req: Request, res: Response) => {
-  
-  const { product_id } = req.body as { product_id: string };
-  const product = await Product.findOne({product_id});
+const deleteProduct = (async (req: Request, res: Response) => {
+  try{
+  const { id } = req.body as { id: string };
+  const product = await Product.findOne({id});
 
   if (product) {
     await product.remove();
-    res.json({ message: "Product removed" });
+    res.json({ message: "Product removed",
+               success:true });
   } else {
     res.status(404);
     throw new Error("Product not found");
   }
+}catch(error:any){
+  return res.json({
+    message:"Something is not valid!",
+    success:false
+  })
+}
 });
-/*
-const updateProduct = asyncHandler(async (req:Request, res:Response) => {
-    const { _id,name, price, description,rating,numReviews, brand, category, countInStock } =
-      req.body;
-   const product = await Product.findById(parseInt(_id));
-   if(mongoose.Types.ObjectId.isValid(_id)){
-      
-   }
-    if (!product) {
-      res.status(404);
-      throw new Error('Product not found');
-    }
-   
-    
-    product.name = name;
-    product.price = price;
-    product.description = description;
-    product.rating=rating;
-    product.numReviews=numReviews;
-    product.brand = brand;
-    product.category = category;
-    product.countInStock = countInStock;
-  
-    const updatedProduct = await product.save();
-    res.json(updatedProduct);
-  });*/
+
 //Fetcing all products
-const getProducts = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
+const getProducts = ( async (req: Request, res: Response): Promise<void> => {
+    try{
     const pageSize = 10;
     const page: number = Number(req.query.pageNumber) || 1;
 
@@ -128,21 +121,35 @@ const getProducts = asyncHandler(
       .skip(pageSize * (page - 1));
 
     res.json({ products, page, pages: Math.ceil(count / pageSize) });
-  }
-);
+  
+}
+catch(error:any){
+  res.json({
+    message:"Something is not valid!",
+    success:false
+  })
+}
+});
 //Ger Product by Id
-const getProductById = asyncHandler(
+const getProductById = (
 
   async (req: Request, res: Response): Promise<void> => {
-    const { product_id } = req.body as { product_id: string };
-    const product = await Product.find({product_id});
+    try{
+    const { id } = req.body as {id: string };
+    const product = await Product.find({id});
     if (!product) {
       res.status(404);
       throw new Error("Product not found");
     }
     res.json(product);
   }
-);
+catch(error:any){
+   res.json({
+    message:"Something is not valid!",
+    success:false
+  })
+}
+});
 export {
   getProducts,
   getProductById,

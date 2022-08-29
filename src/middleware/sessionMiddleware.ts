@@ -6,7 +6,7 @@ dotenv.config();
 
 const sessionMiddleware=(req:Request,res:Response,next:NextFunction)=>{
     return session({
-        secret:"mySecret",
+        secret:'superencryptedsecret',
         resave:false,
         saveUninitialized:true,
     })(req,res,next);

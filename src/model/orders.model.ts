@@ -2,31 +2,16 @@ import mongoose,{Schema,model,Document} from 'mongoose';
  interface IOrderItems extends Document {
     name: string;
     qty: number;
-    image: string;
     price: number;
     product: string;
   }
   
-  interface IShippingAddress extends Document {
-    address: string;
-    city: string;
-    postalCode: string;
-    country: string;
-  }
-  
-   interface IPaymentResult extends Document {
-    id: any;
-    status: any;
-    update_time: any;
-    email_address: any;
-  }
-  
+ 
    interface IOrder extends Document {
     user: string;
     orderItems: IOrderItems[];
-    shippingAddress: any;
+    shippingAddress:string;
     paymentMethod: string;
-    //paymentResult: IPaymentResult | any;
     taxPrice: number;
     shippingPrice: number;
     totalPrice: number;
@@ -63,12 +48,7 @@ import mongoose,{Schema,model,Document} from 'mongoose';
         type: String,
         required: true,
       },
-      paymentResult: {
-        id: { type: String },
-        status: { type: String },
-        update_time: { type: String },
-        email_address: { type: String },
-      },
+    
       taxPrice: {
         type: Number,
         required: true,
@@ -86,7 +66,7 @@ import mongoose,{Schema,model,Document} from 'mongoose';
       },
       isPaid: {
         type: Boolean,
-       // required: true,
+       required: true,
         default: false,
       },
       paidAt: {
@@ -94,7 +74,7 @@ import mongoose,{Schema,model,Document} from 'mongoose';
       },
       isDelivered: {
         type: Boolean,
-        //required: true,
+        required: true,
         default: false,
       },
       deliveredAt: {
@@ -105,7 +85,15 @@ import mongoose,{Schema,model,Document} from 'mongoose';
       timestamps: true,
     }
   );
+  orderSchema.set("toJSON", {
+    transform: function (doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v;
+    }
+  });
+  
   
   const Order = model('Order', orderSchema);
   export default Order;
-  export {IOrder,IOrderItems,IShippingAddress,IPaymentResult};
+  export {IOrder,IOrderItems};

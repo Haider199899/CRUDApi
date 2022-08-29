@@ -4,18 +4,18 @@ import { Request, Response } from "express";
 import {
   IOrder,
   IOrderItems,
-  IShippingAddress,
-  IPaymentResult,
+ 
 } from "../model/orders.model";
 import { ObjectId } from "mongoose";
 
 // @desc Create new order
 // @desc route POST /api/orders
 // @access Private
-const addOrderItems = asyncHandler(
+const addOrderItems = (
   async (req: any, res: Response): Promise<void> => {
     const {
       orderItems,
+      user,
       shippingAddress,
       paymentMethod,
       taxPrice,
@@ -23,6 +23,7 @@ const addOrderItems = asyncHandler(
       totalPrice,
     }: {
       orderItems: IOrderItems[];
+      user:string;
       shippingAddress: string;
       paymentMethod: string;
       taxPrice: number;
@@ -36,7 +37,7 @@ const addOrderItems = asyncHandler(
     } else {
       const order = new Order({
         orderItems,
-        user: "630250a3b98eee84ffe26f41",
+        user,
         shippingAddress,
         paymentMethod,
         taxPrice,
@@ -52,8 +53,10 @@ const addOrderItems = asyncHandler(
 // @desc Get order by Id
 // @desc route GET /api/orders/:id
 // @access Private
-const getOrderById = asyncHandler(
+const getOrderById = (
+  
   async (req: Request, res: Response): Promise<void> => {
+    try{
     const order: any = await Order.findById(req.params.id).populate(
       "user",
       "name email"
@@ -64,78 +67,54 @@ const getOrderById = asyncHandler(
     }
     res.status(200).json(order);
   }
-);
+catch(error:any){
+  res.json({
+    message:"Something is not valid!",
+    success:false
+  })
+}
+});
 
-// @desc Update order to paid
-// @desc route GET /api/orders/:id/pay
-// @access Private
-const updateOrderToPaid = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
-    const order:
-      | (IOrder & {
-          _id: ObjectId;
-        })
-      | null = await Order.findById(req.params.id);
-
-    if (order) {
-      order.isPaid = true;
-      order.paidAt = Date.now();
-      
-      const updatedOrder: IOrder & {
-        _id: ObjectId;
-      } = await order.save();
-      res.json(updatedOrder);
-    } else {
-      res.status(404);
-      throw new Error("Order not found");
-    }
-  }
-);
 
 // @desc Get logged in user orders
 // @desc route GET /api/orders/myorders
 // @access Private
 const getMyOrders = asyncHandler(
-  async (req: any, res: Response): Promise<void> => {
+  async (req: Request, res: Response): Promise<void> => {
+    try{
     const orders: (IOrder & {
       _id: ObjectId;
-    })[] = await Order.find({ user: req.user._id });
+    })[] = await Order.find({ user: req.params.id });
+    if(orders){
     res.json(orders);
+    }else{
+      res.json({
+        message:"Order not found!",
+        success:false
+      })
+    }
+  }
+catch(error:any){
+  res.json({
+    message:"Something is not valid due to "+error,
+    success:false
+  })
+}
   }
 );
 
 // @desc Get all orders
 // @desc route GET /api/orders
 // @access Private/Admin
-const getOrders = asyncHandler(async ({}, res: Response): Promise<void> => {
+const getAllOrders = asyncHandler(async ({}, res: Response): Promise<void> => {
   const orders: any[] = await Order.find().populate("user", "id name");
   res.json(orders);
 });
 
-// @desc Update order to delivered
-// @desc route GET /api/orders/:id/deliver
-// @access Private/Admin
-const updateOrderToDelivered = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
-    const order: any = await Order.findById(req.params.id);
-
-    if (order) {
-      order.isDelivered = true;
-      order.deliveredAt = Date.now();
-      const updatedOrder = await order.save();
-      res.json(updatedOrder);
-    } else {
-      res.status(404);
-      throw new Error("Order not found");
-    }
-  }
-);
 
 export {
   addOrderItems,
   getOrderById,
-  updateOrderToPaid,
-  getMyOrders,
-  getOrders,
-  updateOrderToDelivered,
+  getAllOrders,
+  getMyOrders
 };
