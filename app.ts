@@ -17,8 +17,13 @@ app.use(passport.session());
 let port =process.env.PORT;
 let host = process.env.HOST;
 
+connection();
+routes(app);
+
+app.get("/", (req,res) =>{
+  res.status(200).send("ok")
+})
+
 app.listen( () => {
    console.log(`Server listening at http://${host}:${port}`);
-   connection();
-   routes(app);
 });

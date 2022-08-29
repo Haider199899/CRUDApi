@@ -12,6 +12,7 @@ import asyncHandler from 'express-async-handler';
 
 
 const register = (req: Request, res: Response) => {
+    console.log('calling!');
     let { name, email,password,isAdmin } = req.body;
 
     // use passport JS
