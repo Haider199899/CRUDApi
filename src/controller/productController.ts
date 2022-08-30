@@ -12,6 +12,7 @@ const addProduct=async(req: Request, res: Response)=> {
   const newInventory:IInventory|any=new Inventory({product_id,price,countInStock});
      
       const product = await newProduct.save();
+      // product.id
 
       const inven=await newInventory.save();
       if (product != null) {
