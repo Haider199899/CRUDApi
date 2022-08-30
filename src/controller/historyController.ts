@@ -1,15 +1,16 @@
 import mongoose from 'mongoose';
 import {IHistory} from '../model/history.model';
-import express ,{Request,Response} from 'express';
-import asyncHandler from 'express-async-handler';
+import {Request,Response} from 'express';
+
 import History from '../model/history.model';
 import Product from '../model/products.model';
 
 const addHistory=async(req:Request,res:Response)=>{
     try{
-    const history:any=new History(req.body);
-    const product = await Product.findOne({ product_id: req.body.product_id });
-  if (product === null) {
+      let{product_name,previousPrice,currentPrice,outofStock,product_id}=req.body;
+    const history:IHistory|any=new History({product_name,previousPrice,currentPrice,outofStock,product_id});
+    const product = await Product.findOne({ id: req.body.id });
+  if (product) {
       const result = await history.save();
       if (result === null) {
           res.sendStatus(500);
@@ -22,14 +23,15 @@ const addHistory=async(req:Request,res:Response)=>{
   }
 }catch(error:any){
   return res.json({
-    message:"History not added!",
+    message:"History not added "+error,
     success:false
   })
 }
 };
 const updateHistory = (async (req: Request, res: Response) => {
   try{
-  const { id} = req.body as { id: string};
+  //  const { id} = req.body as { id: string};
+  //const { id} = req.body as { id: string};
   const {product_name,currentPrice,previousPrice,outofStock,product_id}=
     req.body as {
       product_name: string;
@@ -39,9 +41,11 @@ const updateHistory = (async (req: Request, res: Response) => {
       product_id:string;
     
     };
+   
+
  
 
-  const product = await Product.findOneAndUpdate({product_id});
+    const product = await Product.findOneAndUpdate({product_id });
 
 
   if (product) {
@@ -64,7 +68,7 @@ const updateHistory = (async (req: Request, res: Response) => {
   }
 }catch(error:any){
   return res.json({
-    message:"Something is not valid!",
+    message:"Something is not valid!"+error,
     success:false
   })
 }
@@ -91,8 +95,28 @@ const deleteHistory = (async (req: Request, res: Response) => {
   })
 }
 });
+const getHistoryById = (
+
+  async (req: Request, res: Response): Promise<void> => {
+    try{
+    const { id } = req.body as {id: string };
+    const product = await Product.find({id});
+    if (!product) {
+      res.status(404);
+      throw new Error("Product not found");
+    }
+    res.json(product);
+  }
+catch(error:any){
+   res.json({
+    message:"Something is not valid!",
+    success:false
+  })
+}
+});
 export{
   addHistory,
   updateHistory,
-  deleteHistory
+  deleteHistory,
+  getHistoryById
 };

@@ -27,6 +27,7 @@ import {
   addHistory,
   updateHistory,
   deleteHistory,
+  getHistoryById,
 } from "./controller/historyController";
 import {
   addInventory,
@@ -35,7 +36,7 @@ import {
 } from "./controller/inventoryController";
 export default function (app: Express) {
   //user routes
-  app.post("/signup", controller.register);
+  app.post("/signup",controller.register);
   app.post(
     "/login",
     passport.authenticate("login", { session: false }),
@@ -99,16 +100,18 @@ export default function (app: Express) {
   //History Routes
   app.post(
     "/addHistory",
-    passport.authenticate("jwt", { session: false }, addHistory)
-  );
+    passport.authenticate("jwt", { session: false }), addHistory);
+  
   app.patch(
     "/updateHistory",
-    passport.authenticate("jwt", { session: false }, updateHistory)
-  );
+    passport.authenticate("jwt", { session: false }), updateHistory);
+  
   app.delete(
     "/deleteHistory",
-    passport.authenticate("jwt", { session: false }, deleteHistory)
-  );
+    passport.authenticate("jwt", { session: false }), deleteHistory);
+  app.get(
+    "/getHistory",
+  passport.authenticate('jwt',{session:false}),getHistoryById);
   //Inventory Routes
   app.post(
     "/addInventory",

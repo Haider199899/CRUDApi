@@ -24,6 +24,6 @@ app.get("/", (req,res) =>{
   res.status(200).send("ok")
 })
 
-app.listen( () => {
+app.listen(port, () => {
    console.log(`Server listening at http://${host}:${port}`);
 });

@@ -5,7 +5,9 @@ import User, { IUser } from '../model/user.model';
 import controller from '../controller/user.controller';
 import dotenv from 'dotenv';
 dotenv.config()
-
+import bcrypt from 'bcrypt';
+import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
 const LocalStrategy = passportLocal.Strategy;
 const JwtStrategy = passportJwt.Strategy;
 const ExtractJwt = passportJwt.ExtractJwt;
@@ -35,6 +37,8 @@ passport.use('login',
     new LocalStrategy({
         usernameField:"email",
         passwordField:"password",
+        
+    
       
     },
     //anonymous verification function
@@ -46,16 +50,16 @@ passport.use('login',
       
       //if credentials are not valid
       //@ts-ignore
-      if(!user){
-        
-        controller.register;
-
-        done(user,null);
+      if(!user ){
+        return done(user,null);
       }
-      else done(null,false);
+      else {
+        return done(null, false);
+        
+      }
     }
-    )
-    ) ;
+    
+    ) );
 
   //Strategy for getting user information-JWT Strategy
   
@@ -66,7 +70,7 @@ passport.use('login',
       secretOrKey: process.env.SERVER_TOKEN_SECRET
     }, function (jwt_payload, done) {
 
-      User.findOne({ id: jwt_payload._doc._id}, function (err:any, user:IUser) {
+      User.findOne({ id: jwt_payload.id}, function (err:any, user:IUser) {
         if (err) { return done(err, false); }
         if(!user){
           return done(null,false)

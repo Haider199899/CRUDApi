@@ -1,12 +1,10 @@
 import mongoose from "mongoose";
 
-export interface IHistory extends mongoose.Document {
-  product_name:String,
-  brand: string;
-  category: string;
+export interface IHistory extends Document {
+  product_name:string,
   currentPrice: number;
   previousPrice:number;
-  product_id:any;
+  product_id:string;
   outofStock:boolean;
   
   }
@@ -17,7 +15,7 @@ const historySchema=new mongoose.Schema(
     currentPrice: { type: Number, required: true, default: 0 },
     previousPrice: { type: Number, required: true, default: 0 },
     outofStock:{type:Boolean, required:true},
-    product_id:{type:mongoose.Schema.Types.ObjectId,required:true,ref:'Product'},
+    product_id:{type:mongoose.Schema.Types.ObjectId,ref:'Product'},
   
     }
 

@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import config from 'config';
 import { stringify } from 'querystring';
+import controller from '../controller/user.controller';
 export interface IUser extends mongoose.Document{
     name:string;
     email:string;
@@ -9,7 +10,8 @@ export interface IUser extends mongoose.Document{
     isAdmin:Boolean;
     createdAt:Date;
     updatedAt:Date;
-    matchPassword(candidatePassword:string):Promise<boolean>;//Methodn definition for comparing 
+    matchPassword(candidatePassword:string):Promise<boolean>;
+    //Methodn definition for comparing 
     //password that return promise as boolean 
 }
 
@@ -40,5 +42,6 @@ userSchema.set("toJSON", {
 ): Promise<boolean> {
   return await bcrypt.compare(enteredPassword, this.password);
 };
+
   
 export default mongoose.model<IUser>('User',userSchema);

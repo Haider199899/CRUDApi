@@ -7,21 +7,18 @@ import Inventory, { IInventory } from "../model/inventory.model";
 //Adding the product
 const addProduct=async(req: Request, res: Response)=> {
   try{
-  const newProduct: IProduct = new Product(req.body);
-  const newInventory:IInventory|any=new Inventory(req.body.price,req.body.countInStock);
-  
-  const product = await Product.findOne({ id: req.body.id });
-  if (product === null) {
+    let{product_id,product_name,brand,category,price,countInStock}=req.body;
+  const newProduct: IProduct = new Product({product_id,product_name,brand,category,price,countInStock});
+  const newInventory:IInventory|any=new Inventory({product_id,price,countInStock});
+     
       const product = await newProduct.save();
 
-      const inventory=await newInventory.save();
-      if (product === null) {
-          res.sendStatus(500);
-      } else {
+      const inven=await newInventory.save();
+      if (product != null) {
           res.status(201).json({ status: 201, data: product });
       }
 
-  } else {
+  else {
       res.sendStatus(422);
   }
 }catch(error:any){
@@ -37,7 +34,8 @@ const addProduct=async(req: Request, res: Response)=> {
 
 const updateProduct = (async (req: Request, res: Response) => {
   try{
-  const { id,inventory_id } = req.body as { id: string,inventory_id:string };
+  const { product_id } = req.body as { product_id: string };
+  
   const {product_name,  brand, category,price,countInStock}=
     req.body as {
       product_name: string;
@@ -45,13 +43,11 @@ const updateProduct = (async (req: Request, res: Response) => {
       brand: string;
       category: string;
       countInStock:number;
-      inventory_id:string;
     
     };
-  const inventory=await Inventory.findById({inventory_id});
+  const inventory=await Inventory.findOneAndUpdate({product_id});
 
-  const product = await Product.findOneAndUpdate({id});
-
+  const product = await Product.findOneAndUpdate({product_id});
   if (product && inventory) {
     product.product_name =product_name;
     product.price=price;
@@ -70,7 +66,7 @@ const updateProduct = (async (req: Request, res: Response) => {
   }
 }catch(error:any){
   return res.json({
-    message:"Something is not valid!",
+    message:"Something is not valid dut to "+error,
     success:false
   })
 }
@@ -80,11 +76,13 @@ const updateProduct = (async (req: Request, res: Response) => {
 
 const deleteProduct = (async (req: Request, res: Response) => {
   try{
-  const { id } = req.body as { id: string };
-  const product = await Product.findOne({id});
+  const {product_id } = req.body as { product_id: string };
+  const product = await Product.findOne({product_id});
+  const inventory=await Inventory.findOne({product_id});
 
-  if (product) {
+  if (product && inventory) {
     await product.remove();
+    await inventory.remove();
     res.json({ message: "Product removed",
                success:true });
   } else {

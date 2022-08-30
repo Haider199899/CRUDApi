@@ -13,6 +13,7 @@ import { ObjectId } from "mongoose";
 // @access Private
 const addOrderItems = (
   async (req: any, res: Response): Promise<void> => {
+    try{
     const {
       orderItems,
       user,
@@ -47,8 +48,16 @@ const addOrderItems = (
       const createdOrder = await order.save();
       res.status(201).json(createdOrder);
     }
+  
+  }catch(error:any){
+     res.json({
+      message:'Invalid entry',
+      success:false
+    });
+   
   }
-);
+
+});
 
 // @desc Get order by Id
 // @desc route GET /api/orders/:id
@@ -57,7 +66,7 @@ const getOrderById = (
   
   async (req: Request, res: Response): Promise<void> => {
     try{
-    const order: any = await Order.findById(req.params.id).populate(
+    const order: any = await Order.findById(req.body.id).populate(
       "user",
       "name email"
     );
@@ -84,7 +93,7 @@ const getMyOrders = asyncHandler(
     try{
     const orders: (IOrder & {
       _id: ObjectId;
-    })[] = await Order.find({ user: req.params.id });
+    })[] = await Order.find({ user: req.body.id });
     if(orders){
     res.json(orders);
     }else{

@@ -11,12 +11,13 @@ import jwt from 'jsonwebtoken';
 import asyncHandler from 'express-async-handler';
 
 
-const register = (req: Request, res: Response) => {
+const register =async (req: Request, res: Response) => {
     console.log('calling!');
     let { name, email,password,isAdmin } = req.body;
 
     // use passport JS
-
+   const user=await User.findOne({email});
+   if(!user){
     bcryptjs.hash(password, 10, (hashError, hash) => {
         if (hashError) {
             return res.status(401).json({
@@ -33,9 +34,10 @@ const register = (req: Request, res: Response) => {
             isAdmin,
          
         })
+
     
       
-        const token = jwt.sign(_user.toJSON(),'superencryptedsecret' , {expiresIn:process.env.SERVEE_TOKEN_EXPIRETIME});
+        const token = jwt.sign(_user.toJSON(),'superencryptedsecret' , {expiresIn:'365d'});
         
 
         return _user
@@ -66,6 +68,13 @@ const register = (req: Request, res: Response) => {
                 });
             });
     });
+ }else{
+    return res.status(500).json({
+        message:"email already exist",
+        success:false
+    });
+
+    }
 };
 
 
@@ -104,7 +113,7 @@ const login=(req:Request,res:Response)=>{
                         'mySecret',
                         { expiresIn: 3600 },
                         (err, token) => {
-                          res.json({
+                         return res.status(201).json({
                             message:`User id:${user._id} Email:${user.email}`,
                             success: true,
                             token: token
