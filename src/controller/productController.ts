@@ -3,16 +3,18 @@ import { Request, Response } from "express";
 import  { ObjectId } from "mongoose";
 import { IProduct } from "../model/products.model";
 import Inventory, { IInventory } from "../model/inventory.model";
+import { findAncestor } from "typescript";
 
 //Adding the product
 const addProduct=async(req: Request, res: Response)=> {
   try{
-    let{product_id,product_name,brand,category,price,countInStock}=req.body;
-  const newProduct: IProduct = new Product({product_id,product_name,brand,category,price,countInStock});
-  const newInventory:IInventory|any=new Inventory({product_id,price,countInStock});
+    let{product_name,brand,category,price,countInStock}=req.body;
+  const newProduct: IProduct = new Product({product_name,brand,category,price,countInStock});
+  let product_id=newProduct.id;
+  const newInventory:IInventory|any=new Inventory({price,countInStock,product_id});
      
       const product = await newProduct.save();
-
+      
       const inven=await newInventory.save();
       if (product != null) {
           res.status(201).json({ status: 201, data: product });
@@ -34,7 +36,9 @@ const addProduct=async(req: Request, res: Response)=> {
 
 const updateProduct = (async (req: Request, res: Response) => {
   try{
-  const { product_id } = req.body as { product_id: string };
+  const { id } = req.body as { id: string };
+
+  let product_id=id;
   
   const {product_name,  brand, category,price,countInStock}=
     req.body as {
@@ -45,9 +49,9 @@ const updateProduct = (async (req: Request, res: Response) => {
       countInStock:number;
     
     };
-  const inventory=await Inventory.findOneAndUpdate({product_id});
+  const inventory=await Inventory.findOne({product_id});
 
-  const product = await Product.findOneAndUpdate({product_id});
+  const product = await Product.findOne({id});
   if (product && inventory) {
     product.product_name =product_name;
     product.price=price;
@@ -76,13 +80,14 @@ const updateProduct = (async (req: Request, res: Response) => {
 
 const deleteProduct = (async (req: Request, res: Response) => {
   try{
-  const {product_id } = req.body as { product_id: string };
-  const product = await Product.findOne({product_id});
-  const inventory=await Inventory.findOne({product_id});
+    console.log('calling')
+  const {id } = req.body as {id: string };
+  const product = await Product.findOne({id});
+ // const inventory=await Inventory.findOne({product_id});
 
-  if (product && inventory) {
+  if (product) {
     await product.remove();
-    await inventory.remove();
+    //await inventory.remove();
     res.json({ message: "Product removed",
                success:true });
   } else {
@@ -131,22 +136,26 @@ catch(error:any){
 //Ger Product by Id
 const getProductById = (
 
-  async (req: Request, res: Response): Promise<void> => {
-    try{
-    const { id } = req.body as {id: string };
-    const product = await Product.find({id});
-    if (!product) {
-      res.status(404);
-      throw new Error("Product not found");
+    async (req: Request, res: Response)=> {
+      try{
+        console.log('hii')
+        let{id}=req.body as {id:String}
+      const product: IProduct|any = await Product.findOne({id})
+      if (!product) {
+        return res.json({
+        message:'Product not found',
+        })
+      }
+      else{
+      return res.json(product);
+      }
     }
-    res.json(product);
+  catch(error:any){
+    return res.json({
+      message:"Something is not valid!"+error,
+      success:false
+    })
   }
-catch(error:any){
-   res.json({
-    message:"Something is not valid!",
-    success:false
-  })
-}
 });
 export {
   getProducts,

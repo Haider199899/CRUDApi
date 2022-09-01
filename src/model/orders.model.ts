@@ -33,7 +33,7 @@ import mongoose,{Schema,model,Document} from 'mongoose';
           qty: { type: Number, required: true },
          
           price: { type: Number, required: true },
-          product: {
+          product_id: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
             ref: 'Product',

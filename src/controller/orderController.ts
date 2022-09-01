@@ -14,6 +14,7 @@ import { ObjectId } from "mongoose";
 const addOrderItems = (
   async (req: any, res: Response): Promise<void> => {
     try{
+      console.log('calling!');
     const {
       orderItems,
       user,
@@ -22,6 +23,10 @@ const addOrderItems = (
       taxPrice,
       shippingPrice,
       totalPrice,
+      isPaid,
+      paidAt,
+      isDelievered,
+      delieveredAt
     }: {
       orderItems: IOrderItems[];
       user:string;
@@ -30,6 +35,10 @@ const addOrderItems = (
       taxPrice: number;
       shippingPrice: number;
       totalPrice: number;
+      isPaid:boolean;
+      paidAt:Date;
+      isDelievered:boolean;
+      delieveredAt:Date;
     } = req.body;
 
     if (orderItems && orderItems.length === 0) {
@@ -44,6 +53,10 @@ const addOrderItems = (
         taxPrice,
         shippingPrice,
         totalPrice,
+        isPaid,
+        paidAt,
+        isDelievered,
+        delieveredAt
       });
       const createdOrder = await order.save();
       res.status(201).json(createdOrder);
@@ -66,19 +79,18 @@ const getOrderById = (
   
   async (req: Request, res: Response): Promise<void> => {
     try{
-    const order: any = await Order.findById(req.body.id).populate(
-      "user",
-      "name email"
-    );
+      let{id}=req.body as {id:String}
+    const order: IOrder|any = await Order.findOne({id})
     if (!order) {
-      res.status(404);
-      throw new Error("Order not found");
+      res.status(404).json({
+      message:'Order not found',
+      })
     }
     res.status(200).json(order);
   }
 catch(error:any){
   res.json({
-    message:"Something is not valid!",
+    message:"Something is not valid!"+error,
     success:false
   })
 }
@@ -88,7 +100,7 @@ catch(error:any){
 // @desc Get logged in user orders
 // @desc route GET /api/orders/myorders
 // @access Private
-const getMyOrders = asyncHandler(
+const getMyOrders = (
   async (req: Request, res: Response): Promise<void> => {
     try{
     const orders: (IOrder & {

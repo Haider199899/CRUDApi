@@ -7,11 +7,16 @@ import Product from '../model/products.model';
 
 const addHistory=async(req:Request,res:Response)=>{
     try{
-      let{product_name,previousPrice,currentPrice,outofStock,product_id}=req.body;
-    const history:IHistory|any=new History({product_name,previousPrice,currentPrice,outofStock,product_id});
-    const product = await Product.findOne({ id: req.body.id });
+      let{product_name,previousPrice,currentPrice,outofStock,countInStock,product_id}=req.body;
+      let id=product_id;
+    const history:IHistory|any=new History({product_name,previousPrice,currentPrice,outofStock,countInStock,product_id});
+    const product = await Product.findOne({ id });
   if (product) {
+    history.previousPrice=product.price;
+    product.price=history.currentPrice;
+    product.countInStock=history.countInStock;
       const result = await history.save();
+
       if (result === null) {
           res.sendStatus(500);
       } else {
@@ -30,13 +35,12 @@ const addHistory=async(req:Request,res:Response)=>{
 };
 const updateHistory = (async (req: Request, res: Response) => {
   try{
-  //  const { id} = req.body as { id: string};
-  //const { id} = req.body as { id: string};
-  const {product_name,currentPrice,previousPrice,outofStock,product_id}=
+  const {product_name,currentPrice,previousPrice,countInStock,outofStock,product_id}=
     req.body as {
       product_name: string;
       currentPrice:number;
       previousPrice:number;
+      countInStock:number;
       outofStock:boolean;
       product_id:string;
     
@@ -45,13 +49,15 @@ const updateHistory = (async (req: Request, res: Response) => {
 
  
 
-    const product = await Product.findOneAndUpdate({product_id });
+    const product = await Product.findOne({product_id });
 
 
   if (product) {
+    console.log('ok')
     const history=new History();
     history.product_name =product_name;
     product.price=currentPrice;
+    product.countInStock=countInStock;
     history.currentPrice=currentPrice;
     history.previousPrice=previousPrice;
     history.outofStock=outofStock;

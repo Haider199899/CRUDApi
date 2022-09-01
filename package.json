@@ -1,9 +1,9 @@
 {
   "scripts": {
     "start": "NODE_ENV=development && ts-node app.ts"
-    
   },
   "dependencies": {
+    "@hapi/joi": "^17.1.1",
     "@types/bcryptjs": "^2.4.2",
     "@types/cli-color": "^2.0.2",
     "@types/dotenv": "^8.2.0",
@@ -12,6 +12,7 @@
     "@types/passport-local": "^1.0.34",
     "bcrypt": "^5.0.1",
     "bcryptjs": "^2.4.3",
+    "celebrate": "^15.0.1",
     "cli-color": "^2.0.3",
     "config": "^3.3.7",
     "dayjs": "^1.11.5",
@@ -19,6 +20,9 @@
     "express": "^4.18.1",
     "express-async-handler": "^1.2.0",
     "express-session": "^1.17.3",
+    "joi": "^17.6.0",
+    "joi-objectid": "^4.0.2",
+    "joi-oid": "^1.1.2",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.5.2",
     "passport": "^0.6.0",

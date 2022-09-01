@@ -3,7 +3,7 @@ import mongoose, { Document } from 'mongoose';
 //interface for attributes of products
 export interface IProduct extends Document {
     
-    product_id:string;
+   
     product_name: string;
     brand: string;
     category: string;
@@ -15,7 +15,7 @@ export interface IProduct extends Document {
 
   const productSchema = new mongoose.Schema(
   {
-    product_id:{type: String,unique:true, required: true },
+
     product_name: { type: String, required: true },
     brand: { type: String, required: true },
     category: { type: String, required: true },

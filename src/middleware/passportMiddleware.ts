@@ -12,6 +12,32 @@ const LocalStrategy = passportLocal.Strategy;
 const JwtStrategy = passportJwt.Strategy;
 const ExtractJwt = passportJwt.ExtractJwt;
 
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: "email"
+    },
+    function(username, password, done) {
+      User.findOne({ email: username }, function(err:any, user:IUser) {
+        if (err) {
+          return done(err);
+        }
+        if (!user) {
+          return done(null, false, {
+            message: "Email not found"
+          });
+        }
+        if (!user.matchPassword(password)) {
+          return done(null, false, {
+            message: "Password is wrong"
+          });
+        }
+        return done(null, user);
+      });
+    }
+  )
+);
+
 
 
 
@@ -28,7 +54,9 @@ passport.use('login',
       
       //if credentials are valid
       //@ts-ignore
-      if(user && await (user.matchPassword(password))) done(user,null);
+      if(user && await (user.matchPassword(password))) {
+      return done(user,null);
+      }
       else done(null,false);
     }
     )
@@ -82,10 +110,10 @@ passport.use('login',
   
 
 passport.serializeUser((user:any,done)=>{
-    done(null,{_id:user._id});
+    done(null,user.id);
 
 });
-passport.deserializeUser(async(id:string,done:any)=>{
+passport.deserializeUser(async(id,done)=>{
     try{
     const user=await User.findById(id);
     done(null,user);
