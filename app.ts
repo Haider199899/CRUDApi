@@ -5,6 +5,7 @@ import routes from "./src/routes";
 import sessionMiddleware from "./src/middleware/sessionMiddleware";
 import passport from "./src/middleware/passportMiddleware";
 import bodyParser from "body-parser";
+// Path for dotnev config
 dotenv.config();
 
 const app = express();

@@ -83,6 +83,10 @@ const login=(req:Request,res:Response)=>{
     
     const email = req.body.email
     const password= req.body.password
+
+    // let id = req.user.id
+
+    // User.findById({id})
      
     
 

@@ -4,18 +4,21 @@ import {Request,Response} from 'express';
 
 import History from '../model/history.model';
 import Product from '../model/products.model';
+import { Aggregate } from 'mongoose';
 
 const addHistory=async(req:Request,res:Response)=>{
     try{
+      console.log('calling')
       let{product_name,previousPrice,currentPrice,outofStock,countInStock,product_id}=req.body;
-      let id=product_id;
+      let _id=product_id;
     const history:IHistory|any=new History({product_name,previousPrice,currentPrice,outofStock,countInStock,product_id});
-    const product = await Product.findOne({ id });
-  if (product) {
+    const product = await Product.findById({ _id });
+  if (product && previousPrice===product.price) {
     history.previousPrice=product.price;
-    product.price=history.currentPrice;
+    product.price=currentPrice;
     product.countInStock=history.countInStock;
       const result = await history.save();
+      const resPro=await product.save();
 
       if (result === null) {
           res.sendStatus(500);
@@ -24,7 +27,9 @@ const addHistory=async(req:Request,res:Response)=>{
       }
 
   } else {
-      res.sendStatus(422);
+      res.sendStatus(422).json({
+        message:"Invalid entries "
+      });
   }
 }catch(error:any){
   return res.json({
@@ -120,9 +125,48 @@ catch(error:any){
   })
 }
 });
+const getHisByDate=(async(req:Request,res:Response)=>{
+  try{
+    let { product_id } = req.body as {product_id: string };
+    let _id=product_id;
+    console.log(_id)
+  const history=await Product.findById({_id});
+  if(history){
+    let id=_id;
+   const result=await History.aggregate([
+     
+     {
+      $lookup:
+      {
+        from:"products",
+       let: {product_id: '$product_id'},
+        pipeline: [{$match: {
+         $expr: {
+          $eq: [
+           '$_id', '$$product_id'
+          ],
+        }}}],
+        as:"products"
+      }
+     }
+    ]);
+   return res.json({
+      message:result,
+      success:true
+    })
+  
+  }
+  }catch(error:any){
+     return res.json({
+      message:"error"+error
+    })
+  }
+
+});
 export{
   addHistory,
   updateHistory,
   deleteHistory,
-  getHistoryById
+  getHistoryById,
+  getHisByDate
 };

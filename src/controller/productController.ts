@@ -8,13 +8,14 @@ import { findAncestor } from "typescript";
 //Adding the product
 const addProduct=async(req: Request, res: Response)=> {
   try{
-    let{product_name,brand,category,price,countInStock}=req.body;
-  const newProduct: IProduct = new Product({product_name,brand,category,price,countInStock});
+    let{product_name,brand,category,price,countInStock,outofStock,previousPrice,currentPrice}=req.body;
+  const newProduct: IProduct = new Product({product_name,brand,category,price,countInStock,outofStock});
   let product_id=newProduct.id;
-  const newInventory:IInventory|any=new Inventory({price,countInStock,product_id});
+  const newInventory:IInventory|any=new Inventory({price,countInStock,outofStock,product_id});
+
+  
      
       const product = await newProduct.save();
-      
       const inven=await newInventory.save();
       if (product != null) {
           res.status(201).json({ status: 201, data: product });
@@ -40,13 +41,14 @@ const updateProduct = (async (req: Request, res: Response) => {
 
   let product_id=id;
   
-  const {product_name,  brand, category,price,countInStock}=
+  const {product_name,  brand, category,price,countInStock,outofStock}=
     req.body as {
       product_name: string;
       price:number;
       brand: string;
       category: string;
       countInStock:number;
+      outofStock:boolean;
     
     };
   const inventory=await Inventory.findOne({product_id});

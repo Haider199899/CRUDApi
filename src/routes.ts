@@ -31,6 +31,7 @@ import {
   updateHistory,
   deleteHistory,
   getHistoryById,
+  getHisByDate,
 } from "./controller/historyController";
 import {
   addInventory,
@@ -241,8 +242,15 @@ export default function (app: Express) {
         id:Joi.string().hex().length(24).required()
        })
       }),
-  passport.authenticate('jwt',{session:false}),getHistoryById);
-  //Inventory Routes
+      app.get(
+        "/getHistoryByDate",
+        celebrate({
+          [Segments.BODY]: Joi.object().keys({
+            product_id:Joi.string().hex().length(24).required()
+           })
+          }),
+  passport.authenticate('jwt',{session:false}),getHisByDate));
+  //Inventory Routess
   app.post(
     "/addInventory",
     celebrate({
