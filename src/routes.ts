@@ -32,6 +32,7 @@ import {
   deleteHistory,
   getHistoryById,
   getHisByDate,
+  getHisByMonth,
 } from "./controller/historyController";
 import {
   addInventory,
@@ -103,7 +104,9 @@ export default function (app: Express) {
         brand: Joi.string().required(),
         category:Joi.string().required(),
         price: Joi.number().required(),
-        countInStock: Joi.number().required() })
+        countInStock: Joi.number().required(),
+        outofStock: Joi.boolean().required()
+       })
       }),
     passport.authenticate("jwt", { session: false }),
    addProduct
@@ -250,6 +253,15 @@ export default function (app: Express) {
            })
           }),
   passport.authenticate('jwt',{session:false}),getHisByDate));
+
+  app.get(
+    "/getHistoryByMonth",
+    celebrate({
+      [Segments.BODY]: Joi.object().keys({
+        product_id:Joi.string().hex().length(24).required()
+       })
+      }),
+passport.authenticate('jwt',{session:false}),getHisByMonth);
   //Inventory Routess
   app.post(
     "/addInventory",

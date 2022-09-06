@@ -18,6 +18,9 @@ const historySchema=new mongoose.Schema(
     countInStock:{type:Number,required:true},
     product_id:{type:mongoose.Schema.Types.ObjectId,ref:'Product'},
   
+    },
+    {
+      timestamps:true
     }
 
 );

@@ -9,6 +9,7 @@ export interface IProduct extends Document {
     category: string;
     price:number;
     countInStock:number;
+    outofStock:boolean;
     inventory_id:any;
     
   }
@@ -21,6 +22,7 @@ export interface IProduct extends Document {
     category: { type: String, required: true },
     price: { type: Number, required: true },
     countInStock:{ type: Number, required: true },
+    outofStock:{type:Boolean,required:true},
     inventory_id:{type:mongoose.Schema.Types.ObjectId,ref:'Inventory'},//refernce of inventory
   },
   {

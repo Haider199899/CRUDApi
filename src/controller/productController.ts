@@ -8,7 +8,7 @@ import { findAncestor } from "typescript";
 //Adding the product
 const addProduct=async(req: Request, res: Response)=> {
   try{
-    let{product_name,brand,category,price,countInStock,outofStock,previousPrice,currentPrice}=req.body;
+    let{product_name,brand,category,price,countInStock,outofStock}=req.body;
   const newProduct: IProduct = new Product({product_name,brand,category,price,countInStock,outofStock});
   let product_id=newProduct.id;
   const newInventory:IInventory|any=new Inventory({price,countInStock,outofStock,product_id});
