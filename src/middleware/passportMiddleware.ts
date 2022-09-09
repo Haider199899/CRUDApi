@@ -93,13 +93,13 @@ passport.use('login',
   
   passport.use(new JwtStrategy(
     {
-      
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: process.env.SERVER_TOKEN_SECRET
     }, function (jwt_payload, done) {
-
-      User.findOne({ id: jwt_payload.id}, function (err:any, user:IUser) {
-        if (err) { return done(err, false); }
+     User.findOne({ id: jwt_payload.id}, function (err:any, user:IUser) {
+        if (err) { 
+          return done(err, false); 
+        }
         if(!user){
           return done(null,false)
         }
