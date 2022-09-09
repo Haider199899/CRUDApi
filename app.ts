@@ -17,14 +17,11 @@ app.use(passport.initialize());
 app.use(passport.session());
 let port =process.env.PORT;
 let host = process.env.HOST;
-
+let redis_port=6379;
 connection();
 routes(app);
-
-app.get("/", (req,res) =>{
-  res.status(200).send("ok")
-})
 
 app.listen(port, () => {
    console.log(`Server listening at http://${host}:${port}`);
 });
+

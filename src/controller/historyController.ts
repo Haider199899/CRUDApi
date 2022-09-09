@@ -172,7 +172,7 @@ const getHisByDate = async (req: Request, res: Response) => {
           from: "products",
           localField: "product_id",
           foreignField: "_id",
-          as: "info",
+          as: "product_info",
         },
       },
       {
@@ -181,7 +181,7 @@ const getHisByDate = async (req: Request, res: Response) => {
         from: 'inventories',
         localField: 'product_id',
         foreignField: 'product_id',
-        as: 'result'
+        as: 'inventory_info'
       }
     }
 
@@ -191,7 +191,7 @@ const getHisByDate = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       success: true,
-      data: result,
+      history: result,
     });
   } catch (error: any) {
     return res.json({
@@ -249,7 +249,7 @@ const getHisByMonth = async (req: Request, res: Response) => {
           from: "products",
           localField: "product_id",
           foreignField: "_id",
-          as: "info",
+          as: "product_info",
         },
       },
       {
@@ -258,13 +258,13 @@ const getHisByMonth = async (req: Request, res: Response) => {
         from: 'inventories',
         localField: 'product_id',
         foreignField: 'product_id',
-        as: 'result'
+        as: 'inventory_info'
       }
     }
     ]);
 
     return res.json({
-      data: result,
+      history:result,
       success: true,
     });
   } catch (error: any) {

@@ -131,11 +131,38 @@ const getAllOrders = asyncHandler(async ({}, res: Response): Promise<void> => {
   const orders: any[] = await Order.find().populate("user", "id name");
   res.json(orders);
 });
+const get_user_order=async(req:Request,res:Response)=>{
+  try{
+  let {user_id}=req.body as {user_id:string};
+  
+  const result=await Order.aggregate([
+    { $match: { $expr : { $eq: [ '$user' , { $toObjectId: user_id } ] } } },
+    {
+      $lookup:{
+        from:'products',
+        localField:'orderItems.product_id',
+        foreignField:'_id',
+        as:'product_info'
+      }
+    }
+  ])
+  return res.status(200).json({
+    product_info:result,
+    success:true
+  })
+}catch(error:any){
+  return res.status(400).json({
+  message:'Invalid operation',
+  success:false
+  })
+}
+}
 
 
 export {
   addOrderItems,
   getOrderById,
   getAllOrders,
-  getMyOrders
+  getMyOrders,
+  get_user_order
 };

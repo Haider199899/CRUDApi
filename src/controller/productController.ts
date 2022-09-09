@@ -1,9 +1,10 @@
 import Product from "../model/products.model";
 import { Request, Response } from "express";
-import  { ObjectId } from "mongoose";
+
 import { IProduct } from "../model/products.model";
 import Inventory, { IInventory } from "../model/inventory.model";
-import { findAncestor } from "typescript";
+import { ObjectId } from "mongoose";
+
 
 //Adding the product
 const addProduct=async(req: Request, res: Response)=> {
@@ -150,7 +151,7 @@ const getProductById = (
       }
       else{
       return res.json(product);
-      }
+      }''
     }
   catch(error:any){
     return res.json({
@@ -159,10 +160,51 @@ const getProductById = (
     })
   }
 });
+const get_Pro_Info=async(req:Request,res:Response)=>{
+   let{product_id}=req.body as {product_id:string};
+   try{
+   const info=await Product.aggregate([
+    
+      { $match: { $expr : { $eq: [ '$_id' , { $toObjectId: product_id } ] } } },
+    
+    {
+      $lookup:
+      {
+        from:'inventories',
+        localField:'_id',
+        foreignField:'product_id',
+        as:'inventory'
+      }
+    },
+    {
+      $lookup:
+      {
+        from:'histories',
+        localField:'_id',
+        foreignField:'product_id',
+        as:'history'
+      }
+    }
+
+
+
+   ])
+   return res.status(200).json({
+    message:info,
+    success:true
+   })
+  }catch(error:any){
+    return res.status(400).json({
+      message:'Operation not successful due to '+error,
+      success:false
+    })
+  }
+}
 export {
   getProducts,
   getProductById,
   updateProduct,
   addProduct,
   deleteProduct,
+  get_Pro_Info
 };
